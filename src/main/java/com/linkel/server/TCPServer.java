@@ -1,4 +1,4 @@
-package com.netty.server;
+package com.linkel.server;
 
 import java.net.InetSocketAddress;
 
@@ -24,6 +24,8 @@ public class TCPServer {
 	private Channel serverChannel;
 
 	public void start() throws Exception {
+		// 6 .bind(tcpPort).sync()开始绑定server, 通过调用sync同步方法阻塞直到绑定成功
+		// 7 .channel().closeFuture()监听通道关闭事件, 应用程序会一直等待，直到channel关闭
 		serverChannel =  serverBootstrap.bind(tcpPort).sync().channel().closeFuture().sync().channel();
 	}
 

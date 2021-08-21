@@ -1,4 +1,4 @@
-package com.netty.server;
+package com.linkel.server;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

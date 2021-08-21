@@ -1,14 +1,14 @@
-package com.netty.server.handler;
+package com.linkel.server.handler;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.netty.common.protobuf.Message;
-import com.netty.common.protobuf.Command.CommandType;
-import com.netty.common.protobuf.Message.MessageBase;
-import com.netty.server.ChannelRepository;
+import com.linkel.common.protobuf.Message;
+import com.linkel.common.protobuf.Command.CommandType;
+import com.linkel.common.protobuf.Message.MessageBase;
+import com.linkel.server.ChannelRepository;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;

@@ -1,4 +1,4 @@
-package com.netty.server;
+package com.linkel.server;
 
 import java.util.concurrent.TimeUnit;
 
@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.netty.common.protobuf.Message.MessageBase;
-import com.netty.server.handler.IdleServerHandler;
+import com.linkel.common.protobuf.Message.MessageBase;
+import com.linkel.server.handler.IdleServerHandler;
 
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
@@ -33,11 +33,14 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
     @Autowired
     @Qualifier("logicServerHandler")
     private ChannelInboundHandlerAdapter logicServerHandler;
-    
+
+    //有连接到达时会创建一个channel
     @Override
     protected void initChannel(SocketChannel socketChannel) throws Exception {
+        // pipeline管理channel中的Handler
     	ChannelPipeline p = socketChannel.pipeline();
-    	
+
+        // 在channel队列中添加一个handler来处理业务
     	p.addLast("idleStateHandler", new IdleStateHandler(READER_IDLE_TIME_SECONDS
     			, WRITER_IDLE_TIME_SECONDS, ALL_IDLE_TIME_SECONDS, TimeUnit.SECONDS));
 	    p.addLast("idleTimeoutHandler", new IdleServerHandler());

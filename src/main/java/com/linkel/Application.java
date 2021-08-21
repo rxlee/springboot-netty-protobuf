@@ -1,10 +1,13 @@
-package com.netty.server;
+package com.linkel;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.linkel.server.ChannelRepository;
+import com.linkel.server.ServerChannelInitializer;
+import com.linkel.server.TCPServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,16 +25,20 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-/**
- *
- * @author Shanqiang Ke
- * @version 1.0.0
- * @blog http://nosqlcoco.cnblogs.com
- * @since 2016-10-15
- */
+
+@SpringBootApplication(exclude = {org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration.class})
+@EnableTransactionManagement
+@EnableScheduling //启用spring的定时任务功能
+class CollectorApplication
+{
+    public static void main(String[] args) { SpringApplication.run(com.linkel.CollectorApplication.class, args); }
+}
+
 @SpringBootApplication
-@ComponentScan(value = "com.netty.server")
+@ComponentScan(value = "com.linkel")
 @PropertySource(value= "classpath:/application.properties")
 public class Application{
 	@Configuration
@@ -70,9 +77,11 @@ public class Application{
     @Bean(name = "serverBootstrap")
     public ServerBootstrap bootstrap() {
         ServerBootstrap b = new ServerBootstrap();
+        //1 设置reactor 线程
         b.group(bossGroup(), workerGroup())
                 .channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.DEBUG))
+                //5 装配流水线
                 .childHandler(serverChannelInitializer);
         Map<ChannelOption<?>, Object> tcpChannelOptions = tcpChannelOptions();
         Set<ChannelOption<?>> keySet = tcpChannelOptions.keySet();

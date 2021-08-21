@@ -1,13 +1,13 @@
-package com.netty.client.handler;
+package com.linkel.client.handler;
 
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import com.netty.common.protobuf.Message;
-import com.netty.client.NettyClient;
-import com.netty.common.protobuf.Command.CommandType;
-import com.netty.common.protobuf.Message.MessageBase;
+import com.linkel.common.protobuf.Message;
+import com.linkel.client.NettyClient;
+import com.linkel.common.protobuf.Command.CommandType;
+import com.linkel.common.protobuf.Message.MessageBase;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelHandlerContext;

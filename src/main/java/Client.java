@@ -1,20 +1,21 @@
+import io.netty.buffer.ByteBuf;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 
 public class Client extends Frame {
     Socket s = null;
-    DataOutputStream dos = null;
-    DataInputStream dis = null;
+    OutputStream os = null;
+    InputStream is = null;
+//    DataInputStream dis = null;
     private boolean bConnected = false;
 
     TextField tfTxt = new TextField();
@@ -23,7 +24,7 @@ public class Client extends Frame {
     Thread tRecv = new Thread(new RecvThread());
 
     public static void main(String[] args) {
-        new Client().launchFrame(2406);
+        new Client().launchFrame(2404);
     }
 
     public void launchFrame(int port) {
@@ -51,8 +52,9 @@ public class Client extends Frame {
     public void connect(int port) {
         try {
             s = new Socket("192.168.1.147", port);
-            dos = new DataOutputStream(s.getOutputStream());
-            dis = new DataInputStream(s.getInputStream());
+            os = s.getOutputStream();
+            is = s.getInputStream();
+//            dis = new DataInputStream(s.getInputStream());
             System.out.println("~~~~~~~~连接成功~~~~~~~~!");
             bConnected = true;
         } catch (UnknownHostException e) {
@@ -65,8 +67,8 @@ public class Client extends Frame {
 
     public void disconnect() {
         try {
-            dos.close();
-            dis.close();
+            os.close();
+            is.close();
             s.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,12 +79,17 @@ public class Client extends Frame {
     private class TFListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
+            if (s.isClosed()||!s.isConnected()) {
+                connect(2404);
+            }
             String str = tfTxt.getText().trim();
             tfTxt.setText("");
 
             try {
-                dos.writeUTF(str);
-                dos.flush();
+                str+="\r\n";
+                byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
+                os.write(bytes);
+                os.flush();
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -95,15 +102,32 @@ public class Client extends Frame {
 
         public void run() {
             try {
-                while (bConnected) {
-                    String str = dis.readUTF();
-                    taContent.setText(taContent.getText() + str + '\n');
+//                while (bConnected) {
+//                    ByteArrayOutputStream result = new ByteArrayOutputStream();
+//                    byte[] buffer = new byte[1024];
+//                    int length;
+//                    while ((length = is.read(buffer)) != -1) {
+//                        result.write(buffer, 0, length);
+//                    }
+//                    String str = result.toString("UTF-8");
+//                    taContent.setText(taContent.getText() + str + '\n');
+//                }
+
+                try {
+                    byte[] bytes = new byte[1000];
+                    int len;
+                    while ((len = is.read(bytes)) != -1) {
+                        //注意指定编码格式，发送方和接收方一定要统一，建议使用UTF-8
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(new String(bytes, 0, len, "UTF-8"));
+                        taContent.setText(taContent.getText() + new String(sb) + '\n');
+                        System.out.println("收到数据：" + new String(sb));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (SocketException e) {
-                System.out.println("退出了，bye!");
-            } catch (EOFException e) {
-                System.out.println("退出了，bye!");
-            } catch (IOException e) {
+            } catch (Exception e) {
+//                System.out.println("退出了，bye!");
                 e.printStackTrace();
             }
 
